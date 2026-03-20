@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DAYS CYCLING COMPANY</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Oswald:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, h4, h5, h6, .font-oswald { font-family: 'Oswald', sans-serif; }
+        
+        .page-section {
+            animation: fadeIn 0.4s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Cart & Modal Animations */
+        #cart-drawer { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .cart-open { transform: translateX(0) !important; }
+        
+        #bike-modal-overlay { transition: opacity 0.3s ease; }
+        #bike-modal-content { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    </style>
+</head>
+<body class="bg-white text-black min-h-screen flex flex-col overflow-x-hidden">
+
+    <!-- NAVIGATION -->
+    <nav id="navbar" class="fixed w-full z-40 transition-all duration-300 bg-transparent py-4 md:py-6">
+        <div class="container mx-auto px-4 md:px-6 flex justify-between items-center">
+            <div onclick="navigateTo('home')" class="cursor-pointer flex flex-col items-start group">
+                <h1 class="text-3xl md:text-4xl font-bold text-white tracking-tighter uppercase leading-none">
+                    DAYS
+                </h1>
+                <span class="text-[0.6rem] md:text-xs text-gray-400 tracking-[0.2em] uppercase group-hover:text-white transition-colors">
+                    Cycling Company
+                </span>
+            </div>
+
+            <!-- DESKTOP MENU -->
+            <div class="hidden md:flex space-x-6 lg:space-x-8 items-center">
+                <button onclick="navigateTo('home')" class="nav-link text-sm font-bold uppercase tracking-widest hover:text-red-500 transition-colors text-white border-b-2 border-red-600" data-target="home">Home</button>
+                <button onclick="navigateTo('sales')" class="nav-link text-sm font-bold uppercase tracking-widest hover:text-red-500 transition-colors text-gray-300" data-target="sales">Shop</button>
+                <button onclick="navigateTo('workshop')" class="nav-link text-sm font-bold uppercase tracking-widest hover:text-red-500 transition-colors text-gray-300" data-target="workshop">Workshop</button>
+                <button onclick="navigateTo('setup')" class="nav-link text-sm font-bold uppercase tracking-widest hover:text-red-500 transition-colors text-gray-300" data-target="setup">Bike Setup</button>
+                <button onclick="navigateTo('community')" class="nav-link text-sm font-bold uppercase tracking-widest hover:text-red-500 transition-colors text-gray-300" data-target="community">Community</button>
+                <button onclick="navigateTo('about')" class="nav-link text-sm font-bold uppercase tracking-widest hover:text-red-500 transition-colors text-gray-300" data-target="about">About</button>
+                <button onclick="navigateTo('contact')" class="nav-link text-sm font-bold uppercase tracking-widest hover:text-red-500 transition-colors text-gray-300" data-target="contact">Contact</button>
+                
+                <!-- CART ICON -->
+                <button onclick="toggleCartDrawer()" class="relative text-white hover:text-red-500 transition-colors group ml-4">
+                    <i data-lucide="shopping-cart" class="w-6 h-6"></i>
+                    <span id="cart-count" class="hidden absolute -top-2 -right-2 bg-red-600 text-white text-[0.65rem] font-bold rounded-full h-4 w-4 flex items-center justify-center border border-black">0</span>
+                </button>
+            </div>
+
+            <!-- MOBILE MENU BTNS -->
+            <div class="flex items-center space-x-4 md:hidden">
+                <button onclick="toggleCartDrawer()" class="relative text-white">
+                    <i data-lucide="shopping-cart" class="w-6 h-6"></i>
+                    <span id="mobile-cart-count" class="hidden absolute -top-2 -right-2 bg-red-600 text-white text-[0.65rem] font-bold rounded-full h-4 w-4 flex items-center justify-center border border-black">0</span>
+                </button>
+                <button class="text-white" onclick="toggleMobileMenu()">
+                    <i data-lucide="menu" id="menu-icon"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- MOBILE MENU DROPDOWN -->
+        <div id="mobile-menu" class="hidden md:hidden absolute top-full left-0 w-full bg-black/95 backdrop-blur-md border-t border-gray-800 flex flex-col p-6 space-y-4 shadow-2xl">
+            <button onclick="navigateTo('home')" class="text-left text-lg font-oswald uppercase tracking-wide text-white border-b border-gray-800 pb-2">Home</button>
+            <button onclick="navigateTo('sales')" class="text-left text-lg font-oswald uppercase tracking-wide text-red-500 border-b border-gray-800 pb-2">Shop Rigs</button>
+            <button onclick="navigateTo('workshop')" class="text-left text-lg font-oswald uppercase tracking-wide text-white border-b border-gray-800 pb-2">Workshop</button>
+            <button onclick="navigateTo('setup')" class="text-left text-lg font-oswald uppercase tracking-wide text-white border-b border-gray-800 pb-2">Bike Setup</button>
+            <button onclick="navigateTo('community')" class="text-left text-lg font-oswald uppercase tracking-wide text-white border-b border-gray-800 pb-2">Community</button>
+            <button onclick="navigateTo('about')" class="text-left text-lg font-oswald uppercase tracking-wide text-white border-b border-gray-800 pb-2">About</button>
+            <button onclick="navigateTo('contact')" class="text-left text-lg font-oswald uppercase tracking-wide text-white border-b border-gray-800 pb-2">Contact</button>
+        </div>
+    </nav>
+
+    <main class="flex-grow">
+        
+        <!-- ================= HOME PAGE ================= -->
+        <div id="page-home" class="page-section">
+            <header class="relative h-screen min-h-[600px] flex items-center justify-center overflow-hidden">
+                <div class="absolute inset-0 z-0 bg-neutral-900">
+                    <img src="images/home-hero.jpg" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1541625602330-2277a4c46182?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80'" alt="Days Cycling Hero" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-black/30"></div>
+                </div>
+                <div class="relative z-10 container mx-auto px-4 md:px-6 text-center text-white mt-16">
+                    <div class="inline-block border border-white/30 bg-black/30 backdrop-blur-sm px-3 py-1 mb-4 md:mb-6 rounded-full">
+                        <span class="text-[0.6rem] md:text-xs font-bold tracking-[0.2em] uppercase text-red-400">Founded 2025</span>
+                    </div>
+                    <h1 class="text-5xl md:text-7xl lg:text-8xl font-bold uppercase leading-tight tracking-tight mb-4 md:mb-6">
+                        Built by Cyclists.<br />
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-gray-100 to-gray-500">Trusted by All.</span>
+                    </h1>
+                    <p class="text-base md:text-xl text-gray-300 max-w-2xl mx-auto mb-8 font-light leading-relaxed">
+                        Professional workshop. Premium brands. Community rides. 
+                        Experience the difference.
+                    </p>
+                    
+                    <div class="flex flex-row gap-3 md:gap-4 justify-center items-center w-full max-w-md mx-auto">
+                        <button onclick="navigateTo('sales')" class="flex-1 bg-red-600 text-white py-3 md:py-4 font-bold text-sm md:text-lg uppercase tracking-wider hover:bg-red-700 transition-all rounded-sm shadow-lg shadow-red-900/50">
+                            Shop Bikes
+                        </button>
+                        <button onclick="navigateTo('workshop')" class="flex-1 border-2 border-white text-white py-3 md:py-4 font-bold text-sm md:text-lg uppercase tracking-wider hover:bg-white hover:text-black transition-all rounded-sm">
+                            Services
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- WHO WE ARE (Home) -->
+            <section class="py-12 md:py-24 bg-white">
+                <div class="container mx-auto px-4 md:px-6">
+                    <div class="flex flex-col md:flex-row items-center gap-8 md:gap-16">
+                        <div class="md:w-1/2">
+                            <h2 class="text-xs md:text-sm font-bold text-red-600 tracking-[0.2em] uppercase mb-2 md:mb-4">Who We Are</h2>
+                            <h3 class="text-3xl md:text-5xl font-bold text-black mb-4 md:mb-6 leading-tight">NOT JUST ANOTHER <br /> BIKE SHOP.</h3>
+                            <div class="w-16 h-1 bg-black mb-6 md:mb-8"></div>
+                            <p class="text-gray-600 text-base md:text-lg mb-4 md:mb-6 leading-relaxed">Days Cycling Company is built on a foundation of over 25 years of personal experience by Dusty Day, backed by a family legacy spanning nearly a century.</p>
+                            <button onclick="navigateTo('about')" class="flex items-center gap-2 text-black font-bold uppercase tracking-wide hover:text-red-600 transition-colors text-sm md:text-base">
+                                <span>Read our story</span>
+                                <i data-lucide="arrow-right" class="w-4 h-4 md:w-5 md:h-5"></i>
+                            </button>
+                        </div>
+                        <div class="md:w-1/2 w-full bg-neutral-200 rounded-sm relative overflow-hidden">
+                            <span class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-xs font-bold text-gray-500 uppercase tracking-widest z-0">Awaiting Photo</span>
+                            <img src="images/dusty-workshop.jpg" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1505253549113-1463e2717088?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80'" alt="Workshop Mechanic" class="relative z-10 w-full h-[250px] md:h-[500px] object-cover shadow-xl grayscale hover:grayscale-0 transition-all duration-700">
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- SERVICES GRID (Home) -->
+            <section class="py-12 md:py-24 bg-black text-white">
+                <div class="container mx-auto px-4 md:px-6">
+                    <div class="text-center mb-8 md:mb-16">
+                        <h2 class="text-3xl md:text-5xl font-bold uppercase mb-2 md:mb-4">Our Services</h2>
+                        <p class="text-gray-400 text-sm md:text-base max-w-xl mx-auto">Everything you need to keep rolling.</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-8">
+                        <div onclick="navigateTo('workshop')" class="cursor-pointer group relative bg-neutral-900 border border-neutral-800 p-4 md:p-8 flex flex-col items-start transition-all duration-300 hover:border-neutral-600 rounded-lg">
+                            <div class="bg-white text-black p-2 md:p-3 rounded-full mb-3 md:mb-6"><i data-lucide="wrench" class="w-5 h-5 md:w-8 md:h-8"></i></div>
+                            <h3 class="text-sm md:text-2xl font-bold uppercase mb-2 md:mb-3">Workshop</h3>
+                            <p class="text-gray-400 text-xs md:text-base mb-4 leading-relaxed flex-grow line-clamp-3 md:line-clamp-none">Professional servicing for all bicycle types. Expert mechanics ensuring your ride is safe.</p>
+                            <span class="flex items-center text-[0.6rem] md:text-sm font-bold uppercase tracking-widest text-red-500 group-hover:text-white transition-colors">Details <i data-lucide="chevron-right" class="ml-1 w-3 h-3 md:w-4 md:h-4"></i></span>
+                        </div>
+                        
+                        <div onclick="navigateTo('sales')" class="cursor-pointer group relative bg-neutral-900 border border-neutral-800 p-4 md:p-8 flex flex-col items-start transition-all duration-300 hover:border-red-600/50 rounded-lg">
+                            <div class="bg-red-600 text-white p-2 md:p-3 rounded-full mb-3 md:mb-6 shadow-lg shadow-red-900/50"><i data-lucide="bike" class="w-5 h-5 md:w-8 md:h-8"></i></div>
+                            <h3 class="text-sm md:text-2xl font-bold uppercase mb-2 md:mb-3">Shop</h3>
+                            <p class="text-gray-400 text-xs md:text-base mb-4 leading-relaxed flex-grow line-clamp-3 md:line-clamp-none">Premium gravity and trail rigs. Vetted, serviced, and ready for KZN tech.</p>
+                            <span class="flex items-center text-[0.6rem] md:text-sm font-bold uppercase tracking-widest text-red-500 group-hover:text-white transition-colors">Buy Now <i data-lucide="chevron-right" class="ml-1 w-3 h-3 md:w-4 md:h-4"></i></span>
+                        </div>
+
+                        <div onclick="navigateTo('community')" class="cursor-pointer col-span-2 lg:col-span-1 group relative bg-neutral-900 border border-neutral-800 p-4 md:p-8 flex flex-col items-start transition-all duration-300 hover:border-neutral-600 rounded-lg">
+                            <div class="bg-white text-black p-2 md:p-3 rounded-full mb-3 md:mb-6"><i data-lucide="users" class="w-5 h-5 md:w-8 md:h-8"></i></div>
+                            <h3 class="text-sm md:text-2xl font-bold uppercase mb-2 md:mb-3">Group Rides</h3>
+                            <p class="text-gray-400 text-xs md:text-base mb-4 leading-relaxed flex-grow">Join the community. Weekly rides for various skill levels tailored to Mossel Bay routes.</p>
+                            <span class="flex items-center text-[0.6rem] md:text-sm font-bold uppercase tracking-widest text-red-500 group-hover:text-white transition-colors">Details <i data-lucide="chevron-right" class="ml-1 w-3 h-3 md:w-4 md:h-4"></i></span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- ================= E-COMMERCE SHOP PAGE ================= -->
+        <div id="page-sales" class="page-section hidden pt-24 md:pt-32 pb-16 md:pb-24 bg-neutral-50 min-h-screen">
+            <div class="container mx-auto px-4 md:px-6">
+                
+                <div class="flex flex-col md:flex-row justify-between items-end mb-8 md:mb-12 border-b border-gray-300 pb-6">
+                    <div>
+                        <h2 class="text-xs md:text-sm font-bold text-red-600 tracking-[0.2em] uppercase mb-2">Inventory</h2>
+                        <h1 class="text-4xl md:text-6xl font-black uppercase tracking-tight text-black leading-none">The Syndicate Shop</h1>
+                    </div>
+                    <p class="text-gray-500 font-bold uppercase text-sm mt-4 md:mt-0" id="inventory-count">Loading rigs...</p>
+                </div>
+
+                <!-- Product Grid Container -->
+                <div id="bike-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Javascript will inject bikes here -->
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ================= PRODUCT DETAIL PAGE ================= -->
+        <div id="page-product-detail" class="page-section hidden pt-24 md:pt-32 pb-16 md:pb-24 bg-white min-h-screen">
+            <div class="container mx-auto px-4 md:px-6">
+                <button onclick="navigateTo('sales')" class="mb-8 flex items-center text-gray-500 hover:text-red-600 transition-colors font-bold uppercase text-sm tracking-wider">
+                    <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i> Back to Shop
+                </button>
+                
+                <div class="flex flex-col md:flex-row gap-8 md:gap-16">
+                    <div class="md:w-1/2 bg-neutral-100 rounded-xl relative overflow-hidden flex items-center justify-center min-h-[300px] md:min-h-[500px]">
+                        <span class="absolute text-xs font-bold text-gray-400 uppercase tracking-widest z-0">Awaiting Photo</span>
+                        <img id="detail-img" src="" alt="Bike" class="relative z-10 w-full h-full object-cover" />
+                    </div>
+                    
+                    <div class="md:w-1/2 flex flex-col justify-center">
+                        <div>
+                            <span id="detail-brand" class="text-red-600 font-black uppercase tracking-widest text-sm mb-2 block">Brand</span>
+                            <h1 id="detail-model" class="text-4xl md:text-5xl font-black leading-tight mb-4 uppercase text-black">Model</h1>
+                            <p id="detail-price" class="text-3xl md:text-4xl text-black font-black mb-8">R 0</p>
+                            
+                            <div class="grid grid-cols-2 gap-4 mb-8">
+                                <div class="bg-neutral-50 p-4 rounded-lg border border-neutral-200">
+                                    <p class="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Year</p>
+                                    <p id="detail-year" class="font-bold text-lg text-black">2022</p>
+                                </div>
+                                <div class="bg-neutral-50 p-4 rounded-lg border border-neutral-200">
+                                    <p class="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Condition</p>
+                                    <p id="detail-condition" class="font-bold text-lg text-black">Good</p>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-10">
+                                <p class="text-xs text-gray-500 font-bold uppercase tracking-wider mb-3">Mechanic's Notes</p>
+                                <p id="detail-desc" class="text-gray-700 leading-relaxed font-medium text-base md:text-lg"></p>
+                            </div>
+                        </div>
+                        
+                        <button id="detail-add-btn" class="w-full md:w-auto bg-red-600 hover:bg-red-700 text-white px-8 py-4 rounded-lg font-black uppercase tracking-widest transition-all shadow-lg shadow-red-900/20 text-center">
+                            Add to Cart
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= WORKSHOP PAGE ================= -->
+        <div id="page-workshop" class="page-section hidden pt-24 md:pt-32 pb-16 md:pb-24">
+            <div class="container mx-auto px-4 md:px-6">
+                <div class="flex flex-col lg:flex-row gap-8 md:gap-16">
+                    <div class="lg:w-1/2">
+                        <h1 class="text-4xl md:text-7xl font-bold uppercase mb-4 md:mb-8">The Workshop</h1>
+                        <p class="text-lg md:text-xl text-gray-600 mb-6 font-light">Precision engineering for your bicycle. Our workshop is the heart of Days Cycling Company.</p>
+                        <p class="text-gray-600 mb-8 leading-relaxed text-sm md:text-base">We handle everything from minor tune-ups to full race-prep overhauls. With decades of mechanical experience, we treat every bike as if it were our own.</p>
+                        
+                        <div class="bg-neutral-100 p-6 md:p-8 mb-8 border-l-4 border-red-600 rounded-lg">
+                            <h3 class="font-bold text-lg md:text-xl mb-4 uppercase">Services Include:</h3>
+                            <ul class="grid grid-cols-2 gap-x-2 gap-y-3 md:gap-3">
+                                <li class="flex items-center text-gray-700 text-xs md:text-base"><i data-lucide="check-circle-2" class="w-3 h-3 md:w-4 md:h-4 text-red-600 mr-2 flex-shrink-0"></i> General Service</li>
+                                <li class="flex items-center text-gray-700 text-xs md:text-base"><i data-lucide="check-circle-2" class="w-3 h-3 md:w-4 md:h-4 text-red-600 mr-2 flex-shrink-0"></i> Brake Bleeds</li>
+                                <li class="flex items-center text-gray-700 text-xs md:text-base"><i data-lucide="check-circle-2" class="w-3 h-3 md:w-4 md:h-4 text-red-600 mr-2 flex-shrink-0"></i> Suspension</li>
+                                <li class="flex items-center text-gray-700 text-xs md:text-base"><i data-lucide="check-circle-2" class="w-3 h-3 md:w-4 md:h-4 text-red-600 mr-2 flex-shrink-0"></i> Electronic Shift</li>
+                                <li class="flex items-center text-gray-700 text-xs md:text-base"><i data-lucide="check-circle-2" class="w-3 h-3 md:w-4 md:h-4 text-red-600 mr-2 flex-shrink-0"></i> Wheel Build</li>
+                                <li class="flex items-center text-gray-700 text-xs md:text-base"><i data-lucide="check-circle-2" class="w-3 h-3 md:w-4 md:h-4 text-red-600 mr-2 flex-shrink-0"></i> Bearings</li>
+                            </ul>
+                        </div>
+                        <button onclick="navigateTo('contact')" class="w-full md:w-auto bg-black text-white px-8 py-4 font-bold uppercase tracking-widest hover:bg-red-600 transition-colors">Book a Service</button>
+                    </div>
+                    <div class="lg:w-1/2 bg-neutral-200 rounded-lg relative overflow-hidden">
+                        <span class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-xs font-bold text-gray-500 uppercase tracking-widest z-0">Awaiting Photo</span>
+                        <img src="images/workshop-main.jpg" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1618174526567-961da433f81e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80'" alt="Workshop" class="relative z-10 w-full h-[250px] md:h-[600px] object-cover shadow-2xl grayscale">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= SETUP PAGE ================= -->
+        <div id="page-setup" class="page-section hidden pt-24 md:pt-32 pb-16 md:pb-24">
+            <div class="container mx-auto px-4 md:px-6">
+                <div class="flex flex-col-reverse md:flex-row-reverse gap-8 md:gap-16">
+                    <div class="md:w-1/2">
+                        <h2 class="text-xs md:text-sm font-bold text-red-600 tracking-[0.2em] uppercase mb-2">Ergonomics</h2>
+                        <h1 class="text-4xl md:text-7xl font-bold uppercase mb-6 md:mb-8">Bike Setup</h1>
+                        <p class="text-lg md:text-xl text-gray-600 mb-6 font-light">Harmony between man and machine.</p>
+                        
+                        <div class="bg-neutral-50 p-6 md:p-8 mb-8 border-l-4 border-black rounded-lg">
+                            <ul class="space-y-4">
+                                <li class="flex items-start text-gray-700">
+                                    <i data-lucide="crosshair" class="w-5 h-5 text-red-600 mr-3 mt-1 flex-shrink-0"></i> 
+                                    <span class="text-sm md:text-base"><strong>Saddle Position:</strong> Height and fore/aft adjustment for power.</span>
+                                </li>
+                                <li class="flex items-start text-gray-700">
+                                    <i data-lucide="move-horizontal" class="w-5 h-5 text-red-600 mr-3 mt-1 flex-shrink-0"></i> 
+                                    <span class="text-sm md:text-base"><strong>Reach & Drop:</strong> Stem length and handlebar rotation.</span>
+                                </li>
+                                <li class="flex items-start text-gray-700">
+                                    <i data-lucide="footprints" class="w-5 h-5 text-red-600 mr-3 mt-1 flex-shrink-0"></i> 
+                                    <span class="text-sm md:text-base"><strong>Cleat Alignment:</strong> Knee tracking and pedal efficiency.</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <button onclick="navigateTo('contact')" class="w-full md:w-auto bg-red-600 text-white px-8 py-4 font-bold uppercase tracking-widest hover:bg-black transition-colors">Book Your Fit</button>
+                    </div>
+                    
+                    <div class="md:w-1/2 relative group bg-neutral-200 rounded-lg overflow-hidden">
+                        <span class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-xs font-bold text-gray-500 uppercase tracking-widest z-0">Awaiting Photo</span>
+                        <img src="images/bike-setup.jpg" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1576435728678-35d0160e8c69?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80'" alt="Bike Setup" class="relative z-10 w-full h-[300px] md:h-[650px] object-cover shadow-2xl grayscale hover:grayscale-0 transition-all duration-700">
+                        <div class="absolute bottom-4 left-4 z-20">
+                            <div class="bg-black/90 text-white px-3 py-1 text-xs font-bold uppercase tracking-widest backdrop-blur-sm rounded-sm">
+                                Biomechanical Analysis
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= COMMUNITY PAGE ================= -->
+        <div id="page-community" class="page-section hidden pt-24 md:pt-32 pb-16 md:pb-24 bg-neutral-50">
+            <div class="container mx-auto px-4 md:px-6">
+                <div class="text-center max-w-3xl mx-auto mb-10 md:mb-16">
+                    <h1 class="text-4xl md:text-7xl font-bold uppercase mb-4 md:mb-6">Ride With Us</h1>
+                    <p class="text-lg md:text-xl text-gray-600">Inclusive group rides and youth development.</p>
+                </div>
+                <div class="grid md:grid-cols-2 gap-6 md:gap-12 mb-16">
+                    <div class="bg-white p-6 md:p-8 shadow-lg border-t-4 border-black text-left rounded-lg">
+                        <div class="flex items-center mb-4 md:mb-6">
+                            <i data-lucide="users" class="w-8 h-8 md:w-10 md:h-10 mr-4"></i>
+                            <h2 class="text-2xl md:text-3xl font-bold uppercase">Group Rides</h2>
+                        </div>
+                        <div class="space-y-4 text-sm md:text-base">
+                            <div class="flex justify-between border-b border-gray-100 pb-2"><span class="font-bold">Saturday Coffee</span><span class="text-gray-500">06:00 AM</span></div>
+                            <div class="flex justify-between border-b border-gray-100 pb-2"><span class="font-bold">Thursday Intervals</span><span class="text-gray-500">17:15 PM</span></div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 md:p-8 shadow-lg border-t-4 border-red-600 text-left rounded-lg">
+                        <div class="flex items-center mb-4 md:mb-6">
+                            <i data-lucide="graduation-cap" class="w-8 h-8 md:w-10 md:h-10 mr-4 text-red-600"></i>
+                            <h2 class="text-2xl md:text-3xl font-bold uppercase">Development</h2>
+                        </div>
+                        <p class="text-gray-600 mb-6 text-sm md:text-base">Supporting local school teams with technical assistance and coaching.</p>
+                        <div class="w-full h-32 md:h-48 bg-neutral-200 rounded-md relative overflow-hidden">
+                            <span class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-xs font-bold text-gray-500 uppercase tracking-widest z-0">Awaiting Photo</span>
+                            <img src="images/community-ride.jpg" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1569614489495-943c22467d34?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80'" alt="Schools" class="relative z-10 w-full h-full object-cover grayscale">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= ABOUT PAGE ================= -->
+        <div id="page-about" class="page-section hidden pt-24 md:pt-32 pb-16 md:pb-24">
+            <div class="container mx-auto px-4 md:px-6">
+                <h1 class="text-4xl md:text-5xl font-bold uppercase mb-8">About Us</h1>
+                <div class="flex flex-col md:flex-row gap-8 md:gap-12 items-start">
+                    <div class="md:w-1/2 text-base md:text-lg text-gray-700 leading-relaxed space-y-4 md:space-y-6 text-left">
+                        <p>Days Cycling Company isn't just a business; it's a continuation of a lifestyle. Founded by Dusty Day, the shop represents a deep-seated passion for the sport.</p>
+                        <p>With over 25 years of direct industry experience and a family history that boasts nearly 100 years of combined cycling knowledge.</p>
+                        <p>We believe in building relationships, not just selling bikes.</p>
+                    </div>
+                    <div class="md:w-1/2 w-full bg-neutral-200 rounded relative overflow-hidden shadow-xl">
+                        <span class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-xs font-bold text-gray-500 uppercase tracking-widest z-0">Awaiting Photo</span>
+                        <img src="images/about-dusty.jpg" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1528629297340-d1d466945dc5?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80'" alt="About" class="relative z-10 w-full h-64 md:h-auto object-cover grayscale">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= CONTACT PAGE ================= -->
+        <div id="page-contact" class="page-section hidden pt-24 md:pt-32 pb-16 md:pb-24 bg-black text-white">
+            <div class="container mx-auto px-4 md:px-6 grid md:grid-cols-2 gap-8 md:gap-16 text-left">
+                <div>
+                    <h1 class="text-4xl md:text-5xl font-bold uppercase mb-8">Get in Touch</h1>
+                    <div class="space-y-6 md:space-y-8">
+                        <div>
+                            <h3 class="text-lg md:text-xl font-bold uppercase mb-2 text-red-500">Visit Us</h3>
+                            <p class="text-gray-300 text-sm md:text-base">Corner of Watson Avenue & Bally Crescent, Voorbay, Mossel Bay</p>
+                        </div>
+                        <div>
+                            <h3 class="text-lg md:text-xl font-bold uppercase mb-2 text-red-500">Contact</h3>
+                            <p class="text-gray-300 text-sm md:text-base">063 182 8382</p>
+                            <p class="text-gray-300 text-sm md:text-base">admin@dayscycling.co.za</p>
+                        </div>
+                        <div>
+                            <h3 class="text-lg md:text-xl font-bold uppercase mb-2 text-red-500">Hours</h3>
+                            <p class="text-sm md:text-base text-gray-300">Mon–Fri: 08:00 – 17:00</p>
+                            <p class="text-sm md:text-base text-gray-300">Saturday: 09:00 – 13:00</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-neutral-900 p-6 md:p-8 border border-neutral-800 rounded-lg">
+                    <form onsubmit="event.preventDefault(); alert('Message sent!');" class="space-y-4">
+                        <input type="text" placeholder="Name" class="w-full bg-black border border-neutral-700 p-3 md:p-4 text-white">
+                        <input type="email" placeholder="Email" class="w-full bg-black border border-neutral-700 p-3 md:p-4 text-white">
+                        <textarea placeholder="How can we help?" rows="4" class="w-full bg-black border border-neutral-700 p-3 md:p-4 text-white"></textarea>
+                        <button class="w-full bg-white text-black py-4 font-bold uppercase hover:bg-red-600 hover:text-white transition-colors rounded-sm">Send Message</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-neutral-900 text-white pt-12 md:pt-16 pb-8 border-t border-neutral-800">
+        <div class="container mx-auto px-6 text-center">
+            <h2 class="text-2xl md:text-3xl font-bold mb-6 uppercase">DAYS CYCLING COMPANY</h2>
+            <div class="flex justify-center space-x-6 mb-6">
+                <a href="#" class="hover:text-red-500 transition-colors"><i data-lucide="instagram"></i></a>
+                <a href="#" class="hover:text-red-500 transition-colors"><i data-lucide="facebook"></i></a>
+            </div>
+            <p class="text-gray-500 text-xs md:text-sm">© 2026 Days Cycling Company. Mossel Bay.</p>
+        </div>
+    </footer>
+
+    <!-- CART DRAWER -->
+    <div id="cart-overlay" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden" onclick="toggleCartDrawer(false)"></div>
+    <div id="cart-drawer" class="fixed inset-y-0 right-0 z-50 w-full max-w-md bg-white shadow-2xl flex flex-col border-l border-gray-200 translate-x-full">
+        <div class="p-6 border-b border-gray-200 flex items-center justify-between bg-neutral-50">
+            <h2 class="text-2xl font-black uppercase tracking-widest flex items-center">
+                <i data-lucide="shopping-cart" class="w-6 h-6 mr-3 text-red-600"></i> Cart
+            </h2>
+            <button onclick="toggleCartDrawer(false)" class="text-gray-400 hover:text-black p-2 bg-gray-200 rounded-full transition-colors">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <div id="cart-items" class="flex-grow overflow-y-auto p-6 space-y-4 bg-white">
+            <!-- Cart items injected here -->
+        </div>
+
+        <div id="cart-footer" class="p-6 bg-neutral-50 border-t border-gray-200 hidden">
+            <div class="flex justify-between items-end mb-6">
+                <span class="text-gray-500 font-bold uppercase tracking-wider text-sm">Total</span>
+                <span id="cart-total" class="text-3xl font-black text-black">R 0</span>
+            </div>
+
+            <button id="checkout-btn" onclick="handleCheckout()" class="w-full bg-black hover:bg-neutral-800 text-white py-4 rounded-lg font-black uppercase tracking-widest transition-all flex items-center justify-center">
+                <i data-lucide="credit-card" class="w-5 h-5 mr-2"></i> Sandbox Checkout
+            </button>
+        </div>
+    </div>
+
+    <!-- E-COMMERCE LOGIC -->
+    <script>
+        // --- DATA ---
+        const BIKES = [
+            { id: 1, type: 'Downhill', brand: 'YT Industries', model: 'Tues Base', year: 2022, price: 45000, condition: 'Good', description: 'A downhill weapon. Ridden hard but meticulously maintained. Custom frame protection. Built to survive KZN rock gardens.', image: 'images/yt-tues.jpg' },
+            { id: 2, type: 'Enduro', brand: 'Commencal', model: 'Supreme DH V4', year: 2021, price: 52000, condition: 'Excellent', description: 'High pivot witchcraft. Plows through rock gardens like they aren\'t there. Fresh suspension service.', image: 'images/commencal-supreme.jpg' },
+            { id: 3, type: 'Enduro', brand: 'Santa Cruz', model: 'Megatower CC', year: 2021, price: 60000, condition: 'Fair', description: 'Long travel 29er. Scratches on the rear triangle from a shuttle rub but structurally perfect. CC Carbon frame.', image: 'images/santa-cruz-megatower.jpg' },
+            { id: 4, type: 'Trail', brand: 'Specialized', model: 'Stumpjumper EVO', year: 2023, price: 72000, condition: 'Like New', description: 'Ridden twice. Owner realized they prefer golf. Full carbon frame, Fox Factory suspension. Adjustable geometry.', image: 'images/specialized-stumpjumper.jpg' },
+            { id: 5, type: 'Trail', brand: 'Trek', model: 'Fuel EX 8', year: 2020, price: 38000, condition: 'Good', description: 'The ultimate quiver killer. XT drivetrain, completely dialed by our master mechanic.', image: 'images/trek-fuel.jpg' }
+        ];
+
+        let cart = [];
+
+        // --- UTILS ---
+        const formatZAR = (amount) => new Intl.NumberFormat('en-ZA', { style: 'currency', currency: 'ZAR', maximumFractionDigits: 0 }).format(amount);
+
+        // --- SHOP INITIALIZATION ---
+        function initShop() {
+            const grid = document.getElementById('bike-grid');
+            document.getElementById('inventory-count').textContent = `${BIKES.length} Rigs Available`;
+            
+            grid.innerHTML = BIKES.map(bike => `
+                <div onclick="showProductPage(${bike.id})" class="cursor-pointer bg-white border border-gray-200 rounded-xl overflow-hidden hover:border-red-500 transition-all duration-300 group shadow-sm hover:shadow-xl flex flex-col">
+                    <div class="relative h-64 overflow-hidden bg-neutral-200 flex items-center justify-center">
+                        <span class="absolute text-xs font-bold text-gray-400 uppercase tracking-widest z-0">Awaiting Photo</span>
+                        <img src="${bike.image}" alt="${bike.model}" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1544191696-102dbbce1e51?auto=format&fit=crop&w=1000&q=80'; this.classList.add('opacity-40');" class="relative z-10 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" />
+                        <div class="absolute top-3 left-3 flex space-x-2 z-20">
+                            <span class="bg-black/90 backdrop-blur-md px-3 py-1 rounded text-[0.65rem] font-black uppercase tracking-wider text-white">
+                                ${bike.type}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="p-6 flex flex-col flex-grow">
+                        <div class="mb-4">
+                            <p class="text-red-600 text-xs font-black uppercase tracking-widest mb-1">${bike.brand} • ${bike.year}</p>
+                            <h3 class="text-2xl font-black leading-tight text-black">${bike.model}</h3>
+                        </div>
+                        
+                        <div class="mt-auto flex items-center justify-between pt-4 border-t border-gray-100">
+                            <p class="text-black font-black text-2xl">${formatZAR(bike.price)}</p>
+                            <span class="bg-black group-hover:bg-red-600 text-white px-5 py-2 rounded font-bold text-xs transition-colors uppercase tracking-wider">
+                                View Rig
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        // --- PRODUCT PAGE LOGIC ---
+        function showProductPage(id) {
+            const bike = BIKES.find(b => b.id === id);
+            if(!bike) return;
+
+            const detailImg = document.getElementById('detail-img');
+            detailImg.src = bike.image;
+            detailImg.onerror = function() { 
+                this.onerror=null; 
+                this.src='https://images.unsplash.com/photo-1544191696-102dbbce1e51?auto=format&fit=crop&w=1000&q=80'; 
+                this.classList.add('opacity-40');
+            };
+            
+            document.getElementById('detail-brand').textContent = bike.brand;
+            document.getElementById('detail-model').textContent = bike.model;
+            document.getElementById('detail-price').textContent = formatZAR(bike.price);
+            document.getElementById('detail-year').textContent = bike.year;
+            document.getElementById('detail-condition').textContent = bike.condition;
+            document.getElementById('detail-desc').textContent = bike.description;
+            
+            const btn = document.getElementById('detail-add-btn');
+            const inCart = cart.find(item => item.id === id);
+            
+            if(inCart) {
+                btn.textContent = 'Already in Cart';
+                btn.classList.add('bg-neutral-800');
+                btn.classList.remove('bg-red-600', 'hover:bg-red-700');
+                btn.onclick = null;
+            } else {
+                btn.textContent = 'Add to Cart';
+                btn.classList.remove('bg-neutral-800');
+                btn.classList.add('bg-red-600', 'hover:bg-red-700');
+                btn.onclick = () => addToCart(id);
+            }
+
+            navigateTo('product-detail');
+        }
+
+        // --- CART LOGIC ---
+        function addToCart(id) {
+            const bike = BIKES.find(b => b.id === id);
+            if(bike && !cart.find(item => item.id === id)) {
+                cart.push(bike);
+                updateCartUI();
+            }
+            // Update button state immediately if we are on the product page
+            if(!document.getElementById('page-product-detail').classList.contains('hidden')) {
+                const btn = document.getElementById('detail-add-btn');
+                btn.textContent = 'Already in Cart';
+                btn.classList.add('bg-neutral-800');
+                btn.classList.remove('bg-red-600', 'hover:bg-red-700');
+                btn.onclick = null;
+            }
+            toggleCartDrawer(true);
+        }
+
+        function removeFromCart(id) {
+            cart = cart.filter(item => item.id !== id);
+            updateCartUI();
+        }
+
+        function toggleCartDrawer(forceOpen = null) {
+            const drawer = document.getElementById('cart-drawer');
+            const overlay = document.getElementById('cart-overlay');
+            
+            const isOpen = forceOpen !== null ? forceOpen : !drawer.classList.contains('cart-open');
+            
+            if(isOpen) {
+                overlay.classList.remove('hidden');
+                drawer.classList.add('cart-open');
+                drawer.classList.remove('translate-x-full');
+            } else {
+                overlay.classList.add('hidden');
+                drawer.classList.remove('cart-open');
+                drawer.classList.add('translate-x-full');
+            }
+        }
+
+        function updateCartUI() {
+            const deskCount = document.getElementById('cart-count');
+            const mobCount = document.getElementById('mobile-cart-count');
+            
+            if(cart.length > 0) {
+                deskCount.textContent = cart.length; mobCount.textContent = cart.length;
+                deskCount.classList.remove('hidden'); mobCount.classList.remove('hidden');
+            } else {
+                deskCount.classList.add('hidden'); mobCount.classList.add('hidden');
+            }
+
+            const itemsContainer = document.getElementById('cart-items');
+            const footer = document.getElementById('cart-footer');
+            
+            if(cart.length === 0) {
+                itemsContainer.innerHTML = `
+                    <div class="h-full flex flex-col items-center justify-center text-gray-400 space-y-4 pt-20">
+                        <i data-lucide="bike" class="w-16 h-16 opacity-20"></i>
+                        <p class="font-bold uppercase tracking-wider text-sm text-center">Your cart is empty.<br>Go find a rig.</p>
+                    </div>
+                `;
+                footer.classList.add('hidden');
+            } else {
+                itemsContainer.innerHTML = cart.map(item => `
+                    <div class="flex bg-white rounded-lg p-3 border border-gray-200 shadow-sm">
+                        <img src="${item.image}" alt="${item.model}" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1544191696-102dbbce1e51?auto=format&fit=crop&w=1000&q=80';" class="w-20 h-20 object-cover rounded" />
+                        <div class="ml-4 flex-grow flex flex-col justify-center">
+                            <p class="text-[0.65rem] text-red-600 font-bold uppercase tracking-widest">${item.brand}</p>
+                            <h4 class="font-black text-sm mb-1 uppercase">${item.model}</h4>
+                            <p class="text-gray-900 font-bold text-sm">${formatZAR(item.price)}</p>
+                        </div>
+                        <button onclick="removeFromCart(${item.id})" class="p-2 text-gray-400 hover:text-red-600 transition-colors self-center">
+                            <i data-lucide="trash-2" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                `).join('');
+                
+                const total = cart.reduce((sum, item) => sum + item.price, 0);
+                document.getElementById('cart-total').textContent = formatZAR(total);
+                footer.classList.remove('hidden');
+            }
+            lucide.createIcons();
+        }
+
+        function handleCheckout() {
+            const btn = document.getElementById('checkout-btn');
+            btn.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 mr-2 animate-spin"></i> Processing...`;
+            btn.classList.add('bg-neutral-400', 'cursor-not-allowed');
+            lucide.createIcons();
+            
+            setTimeout(() => {
+                btn.innerHTML = `<i data-lucide="check-circle" class="w-5 h-5 mr-2"></i> Order Secured`;
+                btn.classList.remove('bg-neutral-400', 'bg-black');
+                btn.classList.add('bg-green-600');
+                lucide.createIcons();
+                
+                setTimeout(() => {
+                    cart = [];
+                    updateCartUI();
+                    toggleCartDrawer(false);
+                    btn.innerHTML = `<i data-lucide="credit-card" class="w-5 h-5 mr-2"></i> Sandbox Checkout`;
+                    btn.classList.remove('bg-green-600', 'cursor-not-allowed');
+                    btn.classList.add('bg-black');
+                }, 2000);
+            }, 1500);
+        }
+
+        // --- NAVIGATION LOGIC ---
+        function navigateTo(pageId) {
+            document.querySelectorAll('.page-section').forEach(el => el.classList.add('hidden'));
+            const target = document.getElementById('page-' + pageId);
+            if(target) {
+                target.classList.remove('hidden');
+                window.scrollTo(0, 0);
+            }
+            
+            const menu = document.getElementById('mobile-menu');
+            if (!menu.classList.contains('hidden')) toggleMobileMenu();
+
+            document.querySelectorAll('.nav-link').forEach(btn => {
+                const linkTarget = btn.getAttribute('data-target');
+                // Keep 'Shop' highlighted if we are viewing a specific product
+                if(linkTarget === pageId || (pageId === 'product-detail' && linkTarget === 'sales')) {
+                    btn.classList.add('text-white', 'border-b-2', 'border-red-600');
+                    btn.classList.remove('text-gray-300');
+                } else {
+                    btn.classList.remove('text-white', 'border-b-2', 'border-red-600');
+                    btn.classList.add('text-gray-300');
+                }
+            });
+            
+            if(pageId === 'sales') {
+                initShop();
+            }
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            const icon = document.getElementById('menu-icon');
+            menu.classList.toggle('hidden');
+            icon.setAttribute('data-lucide', menu.classList.contains('hidden') ? 'menu' : 'x');
+            lucide.createIcons();
+        }
+
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('bg-black/95', 'py-3', 'shadow-lg');
+                navbar.classList.remove('bg-transparent', 'py-4', 'md:py-6');
+            } else {
+                navbar.classList.remove('bg-black/95', 'py-3', 'shadow-lg');
+                navbar.classList.add('bg-transparent', 'py-4', 'md:py-6');
+            }
+        });
+
+        // INIT
+        lucide.createIcons();
+        updateCartUI();
+    </script>
+</body>
+</html>
